@@ -2,6 +2,9 @@
 
 This project implements a scalable, event-driven microservices architecture for ingesting, analyzing, transcoding, packaging, and serving DRM-protected video content.
 
+![Video Gallery Demo](./docs/app_gallery_demo.png)
+![Video Player Demo](./docs/app_player_demo.png)
+
 ## Architecture Overview
 
 ```mermaid
