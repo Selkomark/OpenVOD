@@ -1,0 +1,133 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    ports:
+      - "8085:8085"
+    environment:
+      PUBSUB_PROJECT_ID: local-vod-project
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_started
+    volumes:
+      - ./data/storage:/app/storage
+      - ./services/api:/app/services/api
+      - /app/services/api/node_modules
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      PUBSUB_PROJECT_ID: local-vod-project
+
+  client:
+    build:
+      context: services/client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./services/client:/app
+      - /app/node_modules
+
+  transcoder:
+    build:
+      context: .
+      dockerfile: services/transcoder/Dockerfile
+    depends_on:
+      - pubsub-emulator
+      - api
+    volumes:
+      - ./data/storage:/app/storage
+      - ./services/transcoder:/app/services/transcoder
+      - /app/services/transcoder/node_modules
+      - /app/node_modules
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      PUBSUB_PROJECT_ID: local-vod-project
+      GOOGLE_CLOUD_PROJECT: local-vod-project
+
+  packager:
+    build:
+      context: .
+      dockerfile: services/packager/Dockerfile
+    depends_on:
+      - pubsub-emulator
+      - api
+    volumes:
+      - ./data/storage:/app/storage
+      - ./services/packager:/app/services/packager
+      - /app/services/packager/node_modules
+      - /app/node_modules
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      PUBSUB_PROJECT_ID: local-vod-project
+      GOOGLE_CLOUD_PROJECT: local-vod-project
+
+  thumbnailer:
+    build:
+      context: .
+      dockerfile: services/thumbnailer/Dockerfile
+    depends_on:
+      - pubsub-emulator
+      - api
+    volumes:
+      - ./data/storage:/app/storage
+      - ./services/thumbnailer:/app/services/thumbnailer
+      - /app/services/thumbnailer/node_modules
+      - /app/node_modules
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      PUBSUB_PROJECT_ID: local-vod-project
+      GOOGLE_CLOUD_PROJECT: local-vod-project
+
+  analyzer:
+    build:
+      context: .
+      dockerfile: services/analyzer/Dockerfile
+    depends_on:
+      - pubsub-emulator
+      - api
+    volumes:
+      - ./data/storage:/app/storage
+      - ./services/analyzer:/app/services/analyzer
+      - /app/services/analyzer/node_modules
+      - /app/node_modules
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      PUBSUB_PROJECT_ID: local-vod-project
+      GOOGLE_CLOUD_PROJECT: local-vod-project
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+

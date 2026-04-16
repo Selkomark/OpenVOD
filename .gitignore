@@ -1,0 +1,8 @@
+node_modules
+.DS_Store
+bun.lock
+target/
+data/database/*
+!data/database/.gitkeep
+data/storage/*
+!data/storage/.gitkeep

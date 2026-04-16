@@ -1,0 +1,14 @@
+{
+  "name": "transcoder",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.3.3"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

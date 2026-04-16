@@ -1,0 +1,14 @@
+{
+  "name": "openvod",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "docker:up": "docker compose up --build -d -V --remove-orphans",
+    "docker:down": "docker compose down",
+    "docker:reset": "bun run docker:down && rm -rf data/database/pgdata && rm -rf data/storage/{ingest,transcoded,packaged,thumbnails} && bun run docker:up",
+    "docker:flush-pubsub": "docker compose restart pubsub-emulator"
+  }
+}

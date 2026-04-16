@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "predev": "bun run src/migrate.ts",
+    "dev": "bun --watch src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "^4.1.0",
+    "@hono/zod-validator": "^0.2.1",
+    "zod": "^3.22.4",
+    "kysely": "^0.27.3",
+    "pg": "^8.11.3",
+    "@google-cloud/pubsub": "^4.3.3",
+    "@google-cloud/storage": "^7.10.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "@types/pg": "^8.11.0"
+  }
+}
