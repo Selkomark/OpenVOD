@@ -4,6 +4,7 @@ This project implements a scalable, event-driven microservices architecture for 
 
 ![Video Gallery Demo](./docs/app_gallery_demo.png)
 ![Video Player Demo](./docs/app_player_demo.png)
+![Upload Status Demo](./docs/app_upload_status_demo.png)
 
 ## Architecture Overview
 
